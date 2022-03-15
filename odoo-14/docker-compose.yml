@@ -1,0 +1,41 @@
+version: '3.1'
+services:
+  postgresql:
+    image: docker.io/bitnami/postgresql:12
+    user: root
+    restart: unless-stopped
+    volumes:
+      - './postgresql_data:/bitnami/postgresql'
+    ports:
+      - "14001:5432"
+    networks:
+        public:
+            ipv4_address: 10.0.1.22
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - POSTGRESQL_USERNAME=odoo
+      - POSTGRESQL_PASSWORD=odoo
+      - POSTGRESQL_DATABASE=bitnami_odoo 
+  odoo:
+    image: docker.io/bitnami/odoo:14
+    user: root
+    ports:
+      - '14002:8069'
+    depends_on:
+      - postgresql
+    volumes:
+      - './odoo_data:/bitnami/odoo'
+    environment:
+      - ODOO_DATABASE_HOST=postgresql
+      - ODOO_DATABASE_PORT_NUMBER=5432
+      - ODOO_DATABASE_USER=odoo
+      - ODOO_DATABASE_NAME=bitnami_odoo
+      - ODOO_DATABASE_PASSWORD=odoo
+    networks:
+        public:
+          ipv4_address: 10.0.1.30
+
+networks:
+  public:
+    external:
+      name: public
